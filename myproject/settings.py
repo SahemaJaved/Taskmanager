@@ -9,6 +9,8 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
+import os
+import dj_database_url
 
 from pathlib import Path
 
@@ -20,12 +22,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-1-i(nkoqfyp7&&v2nt%2-9*4g*maj(3y+rl*jw6z&!870()$pv'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'dev-secret-key')
+DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+
+ALLOWED_HOSTS = ["taskmanager.onrender.com", "127.0.0.1", "localhost"]
+
 
 
 
@@ -79,8 +84,7 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'default': dj_database_url.config(default=f'sqlite:///{BASE_DIR / "db.sqlite3"}')
     }
 }
 
