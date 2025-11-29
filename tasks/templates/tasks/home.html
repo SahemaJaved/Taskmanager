@@ -1,0 +1,65 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Task Manager</title>
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+  <div class="container">
+    <h2>Task Manager</h2>
+
+    <form method="POST" class="task-form">
+      {% csrf_token %}
+      <input type="text" name="title" placeholder="Enter a task" required>
+      <input type="datetime-local" name="time" value="">
+      <button type="submit">Add</button>
+    </form>
+
+    <ul class="task-list">
+      {% for task in tasks %}
+        <li>
+          <span class="task-title">{{ task.title }}</span>
+
+            
+            
+
+            <!-- Show reminder time if set -->
+            {% if task.reminder_time %}
+                <small> | Reminder: {{ task.reminder_time|date:"Y-m-d H:i" }}</small>
+            {% endif %}
+          <span class="task-title">{{ task.title }}</span>
+          <a href="{% url 'delete_task' task.pk %}" class="delete-btn">Delete</a>
+        
+        </li>
+      {% empty %}
+        <li class="empty">No tasks yet. Add one above!</li>
+      {% endfor %}
+    </ul>
+  </div>
+  <script>
+// 1. Ask for notification permission
+document.addEventListener("DOMContentLoaded", function () {
+    if (Notification.permission !== "granted") {
+        Notification.requestPermission();
+    }
+});
+
+// 2. Periodically check for reminders
+setInterval(function () {
+    fetch("/check-reminders/")
+        .then(response => response.json())
+        .then(data => {
+            data.reminders.forEach(task => {
+                new Notification("Reminder", {
+                    body: "Task: " + task.title,
+                    icon: "https://cdn-icons-png.flaticon.com/512/1827/1827951.png"
+                });
+            });
+        });
+}, 8000); // checks every 5 seconds
+</script>
+
+</body>
+</html>
